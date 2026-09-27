@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ITOJ PGP OIDC</title>
+
+        <style data-demo>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+            }
+        </style>
+
+        <style data-snippet>
+            .tm {
+                --tm-green: #4ade80;
+                --tm-bright: #bbf7d0;
+                --tm-soft: #86efac;
+                --tm-dim: #3f9b57;
+                --tm-faint: #7a8d7a;
+                --tm-line: #4f7552;
+
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+
+                background: #0a0e0a;
+                background-image: linear-gradient(
+                    rgba(74, 222, 128, 0.04) 1px,
+                    transparent 1px
+                );
+                background-size: 100% 3px;
+
+                color: var(--tm-green);
+
+                font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Consolas,
+                    "Liberation Mono", monospace;
+            }
+
+            .tm h1,
+            .tm p {
+                margin: 0;
+            }
+
+            .tm-win {
+                width: 100%;
+                max-width: 50%;
+
+                background: #0d130d;
+                border: 1px solid #1d2b1d;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+            .tm-bar {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+
+                background: #111a11;
+                border-bottom: 1px solid #1d2b1d;
+                padding: 11px 14px;
+            }
+
+            .tm-dot {
+                width: 11px;
+                height: 11px;
+                border-radius: 50%;
+            }
+
+            .tm-r {
+                background: #f87171;
+            }
+
+            .tm-y {
+                background: #fbbf24;
+            }
+
+            .tm-g {
+                background: #34d399;
+            }
+
+            .tm-title {
+                margin-left: 8px;
+                font-size: 0.75rem;
+                color: var(--tm-faint);
+                letter-spacing: 0.04em;
+            }
+
+            .tm-body {
+                padding: 26px 26px 32px;
+            }
+
+            .tm-line {
+                font-size: 0.82rem;
+                color: var(--tm-dim);
+                margin-bottom: 22px !important;
+            }
+
+            .tm-label {
+                display: block;
+                font-size: 0.78rem;
+                color: var(--tm-dim);
+                margin-bottom: 6px;
+            }
+
+            .tm-label span {
+                color: var(--tm-soft);
+            }
+
+            .tm-input,
+            .tm-select {
+                display: block;
+                width: 100%;
+                padding: 11px 13px;
+                margin-bottom: 18px;
+
+                background: #0a0f0a;
+                border: 1px solid var(--tm-line);
+                border-radius: 8px;
+
+                color: var(--tm-bright);
+                font: inherit;
+                font-size: 0.9rem;
+
+                transition:
+                    border-color 0.15s,
+                    box-shadow 0.15s;
+            }
+
+            .tm-input::placeholder {
+                color: #6c806d;
+            }
+
+            .tm-input:focus,
+            .tm-select:focus {
+                outline: none;
+                border-color: var(--tm-green);
+                box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+            }
+
+            .tm-hint {
+                margin-top: 18px !important;
+                font-size: 0.75rem;
+                color: var(--tm-faint);
+            }
+
+            .tm-hint a {
+                color: var(--tm-soft);
+                text-decoration: none;
+                border-bottom: 1px dashed var(--tm-dim);
+            }
+
+            .tm-line a {
+                color: var(--tm-soft);
+                text-decoration: none;
+                border-bottom: 1px dashed var(--tm-dim);
+            }
+
+            .tm-advanced {
+                margin: -6px 0 18px;
+            }
+
+            .tm-advanced summary {
+                font-size: 0.78rem;
+                color: var(--tm-dim);
+                cursor: pointer;
+                margin-bottom: 10px;
+                user-select: none;
+            }
+
+            .tm-advanced summary:hover {
+                color: var(--tm-soft);
+            }
+
+            .tm-advanced summary::marker {
+                color: var(--tm-faint);
+            }
+
+            .tm-advanced[open] summary {
+                color: var(--tm-soft);
+            }
+
+            /*
+             * readonly fields remain selectable/focusable, unlike
+             * disabled inputs.
+             */
+            .tm-input[readonly] {
+                cursor: text;
+                caret-color: transparent;
+            }
+
+            .tm-select {
+                appearance: auto;
+                cursor: pointer;
+            }
+
+            .tm-select option {
+                background: #0a0f0a;
+                color: var(--tm-bright);
+            }
+
+            .tm-btn {
+                width: 100%;
+                padding: 12px;
+
+                border: 1px solid var(--tm-green);
+                border-radius: 8px;
+
+                background: transparent;
+                color: var(--tm-green);
+
+                font: inherit;
+                font-size: 0.9rem;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+
+                cursor: pointer;
+
+                transition:
+                    background-color 0.15s,
+                    color 0.15s;
+            }
+
+            .tm-btn:hover {
+                background: var(--tm-green);
+                color: #0a0e0a;
+            }
+
+            .tm-btn:focus-visible,
+            .tm-input:focus-visible,
+            .tm-select:focus-visible {
+                outline: 2px solid var(--tm-green);
+                outline-offset: 3px;
+            }
+
+            .tm-info {
+                margin: 0 0 18px !important;
+                font-size: 0.75rem;
+                line-height: 1.6;
+                color: var(--tm-faint);
+            }
+
+            .tm-info b {
+                color: var(--tm-soft);
+                font-weight: 400;
+            }
+
+            @media (max-width: 800px) {
+                .tm-win {
+                    max-width: 100%;
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .tm-input,
+                .tm-select,
+                .tm-btn {
+                    transition: none;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="tm">
+            <div class="tm-win">
+                <div class="tm-bar" aria-hidden="true">
+                    <span class="tm-dot tm-r"></span>
+                    <span class="tm-dot tm-y"></span>
+                    <span class="tm-dot tm-g"></span>
+                    <span class="tm-title">PGP OIDC</span>
+                </div>
+
+                <div class="tm-body">
+                    <p class="tm-line">
+                        Hi! Here's some Frequently Asked Questions (FAQs), and
+                        their answers, of course!
+                    </p>
+
+                    <details class="tm-advanced">
+                        <summary>How does this service work?</summary>
+
+                        <p class="tm-line">
+                            This service functions by using a completely
+                            stateless architecture, where a challenge token is
+                            generated using free compute server-side, passed to
+                            you to clearsign, and then verified.
+                            <br /><br />
+                            The real magic is the fact that the token is a JWT
+                            made using server-side secrets, because the JWT is
+                            itself signed internally, the service can know it
+                            did in fact issue that token! This, alongside the
+                            fact that we require you clearsign, rather than
+                            detached sign, means you hand the service back its
+                            own issued JWT once you sign it, so the service
+                            doesn't need to store anything!
+                        </p>
+                    </details>
+
+                    <details class="tm-advanced">
+                        <summary>How is this service hosted?</summary>
+
+                        <p class="tm-line">
+                            This service is hosted entirely on a free-tier
+                            Cloudflare worker, which is the reason it was made
+                            to be totally stateless!
+                        </p>
+                    </details>
+
+                    <details class="tm-advanced">
+                        <summary>How was this service made?</summary>
+
+                        <p class="tm-line">
+                            This service was made entirely by ItsThatOneJack
+                            (ITOJ), with small bits of help from coding-adept
+                            Large Language Models such as ChatGPT and Claude
+                            Sonnet, the LLMs were involved in the process of
+                            ensuring spec compliance, and implementation of the
+                            page rendering system.
+                        </p>
+                    </details>
+
+                    <details class="tm-advanced">
+                        <summary>Is any of my data shared?</summary>
+
+                        <p class="tm-line">
+                            No, none of your data, other than what is required
+                            to perform OpenID Connect's flow, is ever shared
+                            with another party or even stored on this service!
+                            <br /><br />
+                            This service is completely stateless, and so is not
+                            capable of storing your data apart from in memory
+                            during token generation and verification.
+                            <br /><br />
+                            However, Cloudflare, which this service is hosted
+                            on, may record data such as your device fingerprint,
+                            which is why you may have seen your ad/tracker
+                            blocker find and block a single tracker.
+                        </p>
+                    </details>
+
+                    <details class="tm-advanced">
+                        <summary>
+                            Why must I sometimes provide extra info?
+                        </summary>
+
+                        <p class="tm-line">
+                            OpenID Connect is fundamentally a system that exists
+                            solely to convey your identity to other services.
+                            <br />
+                            Because of this, sometimes services request more
+                            info, like a preferred username, or your email. In
+                            these cases, ITOJ OIDC will ask you for these
+                            details before authenticating you with the RP
+                            (Relying Party) service.
+                        </p>
+                    </details>
+
+                    <details class="tm-advanced">
+                        <summary>Is this service open-source?</summary>
+
+                        <p class="tm-line">
+                            As of the 27th of September, 2026, this service is
+                            undergoing the process of being cleaned up prior to
+                            being made open source. Once this service is made
+                            open-source, it will be licensed under the Mozilla
+                            Public License version 2.0, or a similar license,
+                            and will be available on GitHub.
+                        </p>
+                    </details>
+
+                    <details class="tm-advanced">
+                        <summary>
+                            How can I make my service trust this one?
+                        </summary>
+
+                        <p class="tm-line">
+                            We have a dedicated page for this process that you
+                            can find <a href="/add">here</a>!
+                        </p>
+                    </details>
+
+                    <details class="tm-advanced">
+                        <summary>TEST</summary>
+
+                        <p class="tm-line">TESST</p>
+
+                        <label class="tm-label" for="tm-description">
+                            <span aria-hidden="true">$ </span>Provider Base
+                            Address
+                        </label>
+
+                        <input
+                            class="tm-input"
+                            type="text"
+                            id="tm-description"
+                            value="https://oidc.itoj.dev"
+                            readonly
+                            autocomplete="off"
+                            spellcheck="false"
+                        />
+                    </details>
+
+                    <p class="tm-hint">
+                        <span aria-hidden="true">// </span
+                        ><a href="/">Go Home</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

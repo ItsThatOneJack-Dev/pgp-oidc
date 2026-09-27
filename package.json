@@ -1,0 +1,19 @@
+{
+  "name": "oidc",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260927.1",
+    "@types/bun": "latest",
+    "@types/node": "^26.6.3",
+    "wrangler": "^4.141.0"
+  },
+  "peerDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "jose": "^6.2.12",
+    "openpgp": "^6.3.2"
+  }
+}

@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ITOJ PGP OIDC</title>
+        <style data-demo>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+            }
+        </style>
+        <style data-snippet>
+            .tm {
+                --tm-green: #4ade80;
+                --tm-bright: #bbf7d0;
+                --tm-soft: #86efac;
+                --tm-dim: #3f9b57;
+                --tm-faint: #7a8d7a;
+                --tm-line: #4f7552;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+                background: #0a0e0a;
+                background-image: linear-gradient(
+                    rgba(74, 222, 128, 0.04) 1px,
+                    transparent 1px
+                );
+                background-size: 100% 3px;
+                color: var(--tm-green);
+                font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Consolas,
+                    "Liberation Mono", monospace;
+            }
+
+            .tm h1,
+            .tm p {
+                margin: 0;
+            }
+
+            .tm-win {
+                width: 100%;
+                max-width: 50%;
+                background: #0d130d;
+                border: 1px solid #1d2b1d;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+            .tm-bar {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                background: #111a11;
+                border-bottom: 1px solid #1d2b1d;
+                padding: 11px 14px;
+            }
+
+            .tm-dot {
+                width: 11px;
+                height: 11px;
+                border-radius: 50%;
+            }
+
+            .tm-r {
+                background: #f87171;
+            }
+
+            .tm-y {
+                background: #fbbf24;
+            }
+
+            .tm-g {
+                background: #34d399;
+            }
+
+            .tm-title {
+                margin-left: 8px;
+                font-size: 0.75rem;
+                color: var(--tm-faint);
+                letter-spacing: 0.04em;
+            }
+
+            .tm-body {
+                padding: 26px 26px 32px;
+            }
+
+            .tm-line {
+                font-size: 0.82rem;
+                color: var(--tm-dim);
+                margin-bottom: 6px !important;
+            }
+
+            .tm-line b {
+                color: var(--tm-soft);
+                font-weight: 400;
+            }
+
+            .tm h1 {
+                font-size: 1rem;
+                color: var(--tm-bright);
+                font-weight: 700;
+                margin: 14px 0 22px;
+            }
+
+            .tm-cursor {
+                margin-left: 2px;
+                animation: tm-blink 1s steps(1) infinite;
+            }
+
+            @keyframes tm-blink {
+                50% {
+                    opacity: 0;
+                }
+            }
+
+            .tm-codebox {
+                margin: 14px 0 22px;
+                border: 1px solid var(--tm-line);
+                border-radius: 8px;
+                overflow: hidden;
+                background: #080c08;
+            }
+
+            .tm-code-tabs {
+                display: flex;
+                align-items: stretch;
+                background: #0d150d;
+                border-bottom: 1px solid var(--tm-line);
+                overflow-x: auto;
+            }
+
+            .tm-code-tab {
+                appearance: none;
+                border: 0;
+                border-right: 1px solid #1d2b1d;
+                padding: 8px 13px;
+                background: transparent;
+                color: var(--tm-faint);
+                font: inherit;
+                font-size: 0.72rem;
+                cursor: pointer;
+                white-space: nowrap;
+                transition:
+                    background-color 0.15s,
+                    color 0.15s;
+            }
+
+            .tm-code-tab:hover {
+                background: #111b11;
+                color: var(--tm-soft);
+            }
+
+            .tm-code-tab[aria-selected="true"] {
+                background: #111a11;
+                color: var(--tm-green);
+                box-shadow: inset 0 -2px 0 var(--tm-green);
+            }
+
+            .tm-code-wrap {
+                position: relative;
+            }
+
+            .tm-code {
+                margin: 0;
+                padding: 18px 54px 18px 18px;
+                min-height: 92px;
+                overflow-x: auto;
+                color: var(--tm-bright);
+                font: inherit;
+                font-size: 0.82rem;
+                line-height: 1.6;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+
+            .tm-copy {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                border: 1px solid #315234;
+                border-radius: 6px;
+                background: #0d150d;
+                color: var(--tm-soft);
+                font: inherit;
+                font-size: 0.85rem;
+                cursor: pointer;
+                transition:
+                    background-color 0.15s,
+                    border-color 0.15s,
+                    color 0.15s;
+            }
+
+            .tm-copy:hover {
+                background: #152215;
+                border-color: var(--tm-green);
+                color: var(--tm-green);
+            }
+
+            .tm-copy:focus-visible,
+            .tm-code-tab:focus-visible {
+                outline: 2px solid var(--tm-green);
+                outline-offset: 2px;
+            }
+
+            .tm-copy.tm-copied {
+                border-color: var(--tm-green);
+                color: var(--tm-green);
+            }
+
+            .tm-label {
+                display: block;
+                font-size: 0.78rem;
+                color: var(--tm-dim);
+                margin-bottom: 6px;
+            }
+
+            .tm-label span {
+                color: var(--tm-soft);
+            }
+
+            .tm-input {
+                display: block;
+                width: 100%;
+                padding: 11px 13px;
+                margin-bottom: 18px;
+                background: #0a0f0a;
+                border: 1px solid var(--tm-line);
+                border-radius: 8px;
+                color: var(--tm-bright);
+                font: inherit;
+                font-size: 0.9rem;
+                caret-color: var(--tm-green);
+                transition:
+                    border-color 0.15s,
+                    box-shadow 0.15s;
+            }
+
+            .tm-input::placeholder {
+                color: #6c806d;
+            }
+
+            .tm-textarea {
+                resize: vertical;
+                min-height: 200px;
+                line-height: 1.5;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+
+            .tm-input:focus {
+                outline: none;
+                border-color: var(--tm-green);
+                box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+            }
+
+            .tm-btn {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid var(--tm-green);
+                border-radius: 8px;
+                background: transparent;
+                color: var(--tm-green);
+                font: inherit;
+                font-size: 0.9rem;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                cursor: pointer;
+                transition:
+                    background-color 0.15s,
+                    color 0.15s;
+            }
+
+            .tm-btn:hover {
+                background: var(--tm-green);
+                color: #0a0e0a;
+            }
+
+            .tm-hint {
+                margin-top: 18px !important;
+                font-size: 0.75rem;
+                color: var(--tm-faint);
+            }
+
+            .tm-hint a {
+                color: var(--tm-soft);
+                text-decoration: none;
+                border-bottom: 1px dashed var(--tm-dim);
+            }
+
+            .tm-hint a:hover {
+                color: var(--tm-bright);
+                border-bottom-color: var(--tm-soft);
+            }
+
+            .tm-linklike {
+                appearance: none;
+                border: 0;
+                border-bottom: 1px dashed var(--tm-dim);
+                border-radius: 0;
+                background: transparent;
+                padding: 0;
+                color: var(--tm-soft);
+                font: inherit;
+                font-size: inherit;
+                cursor: pointer;
+            }
+
+            .tm-linklike:hover {
+                color: var(--tm-bright);
+                border-bottom-color: var(--tm-soft);
+            }
+
+            .tm-keypanel {
+                margin-top: 4px;
+            }
+
+            .tm-advanced {
+                margin: -6px 0 18px;
+            }
+
+            .tm-advanced summary {
+                font-size: 0.78rem;
+                color: var(--tm-dim);
+                cursor: pointer;
+                margin-bottom: 10px;
+                user-select: none;
+            }
+
+            .tm-advanced summary:hover {
+                color: var(--tm-soft);
+            }
+
+            .tm-advanced summary::marker {
+                color: var(--tm-faint);
+            }
+
+            .tm-advanced[open] summary {
+                color: var(--tm-soft);
+            }
+
+            .tm a:focus-visible,
+            .tm-btn:focus-visible {
+                outline: 2px solid var(--tm-green);
+                outline-offset: 3px;
+                border-radius: 3px;
+            }
+
+            .tm-btn:focus-visible {
+                border-radius: 8px;
+            }
+
+            .tm-footer {
+                margin-top: 22px !important;
+                padding-top: 16px;
+                border-top: 1px solid #1d2b1d;
+            }
+
+            .tm-footer-line {
+                font-size: 0.72rem;
+                line-height: 1.7;
+                color: var(--tm-faint);
+            }
+
+            .tm-footer-line a {
+                color: var(--tm-soft);
+                text-decoration: none;
+                border-bottom: 1px dashed var(--tm-dim);
+            }
+
+            .tm-footer-line a:hover {
+                color: var(--tm-bright);
+                border-bottom-color: var(--tm-soft);
+            }
+
+            @media (max-width: 800px) {
+                .tm-win {
+                    max-width: 100%;
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .tm-cursor {
+                    animation: none;
+                }
+
+                .tm-input,
+                .tm-btn,
+                .tm-code-tab,
+                .tm-copy {
+                    transition: none;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- snippet:html -->
+        <div class="tm">
+            <div class="tm-win">
+                <div class="tm-bar" aria-hidden="true">
+                    <span class="tm-dot tm-r"></span>
+                    <span class="tm-dot tm-y"></span>
+                    <span class="tm-dot tm-g"></span>
+                    <span class="tm-title">PGP OIDC Login</span>
+                </div>
+
+                <div class="tm-body">
+                    <p class="tm-line">
+                        The service <b>{SERVICE}</b> is requesting that you sign
+                        in with OIDC using your PGP key.
+                    </p>
+
+                    <p class="tm-line" id="tm-challenge-intro">
+                        Below you will find a challenge token, please clearsign
+                        it using a PGP implementation of your choice.
+                    </p>
+
+                    <div class="tm-codebox" id="tm-challenge-block">
+                        <div
+                            class="tm-code-tabs"
+                            role="tablist"
+                            aria-label="Signing command"
+                        >
+                            <button
+                                class="tm-code-tab"
+                                type="button"
+                                role="tab"
+                                aria-selected="true"
+                                aria-controls="tm-code"
+                                data-language="raw"
+                            >
+                                Raw
+                            </button>
+
+                            <button
+                                class="tm-code-tab"
+                                type="button"
+                                role="tab"
+                                aria-selected="false"
+                                aria-controls="tm-code"
+                                data-language="bash"
+                            >
+                                Bash
+                            </button>
+
+                            <button
+                                class="tm-code-tab"
+                                type="button"
+                                role="tab"
+                                aria-selected="false"
+                                aria-controls="tm-code"
+                                data-language="fsh"
+                            >
+                                Fsh
+                            </button>
+
+                            <button
+                                class="tm-code-tab"
+                                type="button"
+                                role="tab"
+                                aria-selected="false"
+                                aria-controls="tm-code"
+                                data-language="nushell"
+                            >
+                                Nushell
+                            </button>
+                        </div>
+
+                        <div class="tm-code-wrap">
+                            <pre
+                                class="tm-code"
+                                id="tm-code"
+                                role="tabpanel"
+                                tabindex="0"
+                            ><code id="tm-code-content"></code></pre>
+
+                            <button
+                                class="tm-copy"
+                                type="button"
+                                id="tm-copy"
+                                aria-label="Copy signing command"
+                                title="Copy"
+                            >
+                                ⧉
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="tm-signature-form" action="/verify" method="post">
+                        <input
+                            type="hidden"
+                            name="challenge"
+                            id="tm-challenge-field"
+                        />
+
+                        <label class="tm-label" for="tm-user">
+                            <span aria-hidden="true">$ </span>Signature
+                        </label>
+
+                        <textarea
+                            class="tm-input tm-textarea"
+                            id="tm-user"
+                            name="signature"
+                            placeholder="-----BEGIN PGP SIGNED MESSAGE-----"
+                            autocomplete="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                            rows="10"
+                            required
+                        ></textarea>
+
+                        <div id="tm-extra-fields"></div>
+
+                        <button class="tm-btn" type="submit">Continue</button>
+                    </form>
+
+                    <p class="tm-hint" id="tm-key-hint">
+                        <span aria-hidden="true">// </span>Using public key
+                        {FINGERPRINT}
+                        <br />
+                        <span aria-hidden="true">// </span>Wrong?
+                        <button
+                            class="tm-linklike"
+                            type="button"
+                            id="tm-change-key"
+                        >
+                            Change Key
+                        </button>
+                    </p>
+
+                    <div class="tm-keypanel" id="tm-keypanel" hidden>
+                        <label class="tm-label" for="tm-fpr">
+                            <span aria-hidden="true">$ </span>Key fingerprint
+                        </label>
+
+                        <input
+                            class="tm-input"
+                            type="text"
+                            id="tm-fpr"
+                            placeholder="0123456789ABCDEF0123456789ABCDEF01234567"
+                            autocomplete="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                        />
+
+                        <details class="tm-advanced">
+                            <summary>Advanced</summary>
+
+                            <label class="tm-label" for="tm-keyserver">
+                                <span aria-hidden="true">$ </span>Keyserver
+                                (optional)
+                            </label>
+
+                            <input
+                                class="tm-input"
+                                type="text"
+                                id="tm-keyserver"
+                                placeholder="keys.openpgp.org"
+                                autocomplete="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                            />
+                        </details>
+
+                        <button class="tm-btn" type="button" id="tm-use-key">
+                            Use this key
+                        </button>
+                    </div>
+
+                    <p class="tm-hint tm-footer">
+                        <span class="tm-footer-line">
+                            <span aria-hidden="true">// </span
+                            ><a href="/faq">Why do I need to provide these?</a>
+                        </span>
+                        <br />
+                        <span class="tm-footer-line" id="tm-footer-key">
+                            <span aria-hidden="true">// </span>Using public key
+                            {FINGERPRINT}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- /snippet:html -->
+
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const challenge = "{CHALLENGE}";
+            const fingerprint = urlParams.get("login_hint") || "{FINGERPRINT}";
+            const keyserver = urlParams.get("keyserver") || "{KEYSERVER}";
+            const requestedFields = /*{REQUESTED_FIELDS_JSON}*/ undefined; // Populated automatically by `render.ts`, ignore.
+
+            const extraFields = document.getElementById("tm-extra-fields");
+            for (const field of requestedFields) {
+                const wrapper = document.createElement("div");
+
+                const label = document.createElement("label");
+                label.className = "tm-label";
+                label.setAttribute("for", `tm-claim-${field.claim}`);
+                label.innerHTML = `<span aria-hidden="true">$ </span>${field.label}`;
+
+                const input = document.createElement("input");
+                input.className = "tm-input";
+                input.type = field.type;
+                input.id = `tm-claim-${field.claim}`;
+                input.name = `claim_${field.claim}`;
+                input.autocomplete = "off";
+
+                wrapper.append(label, input);
+                extraFields.append(wrapper);
+            }
+
+            const challengeIntro =
+                document.getElementById("tm-challenge-intro");
+            const challengeBlock =
+                document.getElementById("tm-challenge-block");
+            const signatureForm = document.getElementById("tm-signature-form");
+            const keyHint = document.getElementById("tm-key-hint");
+            const keyLink = document.getElementById("tm-key-link");
+            const keyPanel = document.getElementById("tm-keypanel");
+            const changeKeyBtn = document.getElementById("tm-change-key");
+            const useKeyBtn = document.getElementById("tm-use-key");
+            const fprInput = document.getElementById("tm-fpr");
+            const keyserverInput = document.getElementById("tm-keyserver");
+            const footerKeyLink = document.getElementById("tm-footer-key-link");
+
+            function renderFingerprint() {
+                if (!fingerprint) return;
+
+                keyLink.textContent = fingerprint;
+                keyLink.href = "/faq";
+
+                footerKeyLink.textContent = fingerprint;
+                footerKeyLink.href = "/faq";
+            }
+
+            renderFingerprint();
+
+            const challengeField =
+                document.getElementById("tm-challenge-field");
+            challengeField.value = challenge;
+
+            function showKeyPanel() {
+                challengeIntro.textContent =
+                    "Please select a key to use for authentication.";
+
+                challengeBlock.hidden = true;
+                signatureForm.hidden = true;
+                keyHint.hidden = true;
+                keyPanel.hidden = false;
+
+                fprInput.value = fingerprint;
+                keyserverInput.value = keyserver;
+                fprInput.focus();
+            }
+
+            function showSigningPage() {
+                challengeIntro.textContent =
+                    "Below you will find a challenge token, please clearsign it using a PGP implementation of your choice.";
+
+                challengeBlock.hidden = false;
+                signatureForm.hidden = false;
+                keyHint.hidden = false;
+                keyPanel.hidden = true;
+            }
+
+            function useChosenKey() {
+                const fpr = fprInput.value.trim().toUpperCase();
+
+                if (!/^[0-9A-F]{40}$/.test(fpr)) {
+                    fprInput.setCustomValidity(
+                        "Enter a full 40-character key fingerprint",
+                    );
+                    fprInput.reportValidity();
+                    return;
+                }
+
+                fprInput.setCustomValidity("");
+
+                const url = new URL(window.location.href);
+                url.searchParams.set("login_hint", fpr);
+
+                const ks = keyserverInput.value.trim();
+
+                if (ks) {
+                    url.searchParams.set("keyserver", ks);
+                } else {
+                    url.searchParams.delete("keyserver");
+                }
+
+                window.location.href = url.toString();
+            }
+
+            changeKeyBtn.addEventListener("click", showKeyPanel);
+            useKeyBtn.addEventListener("click", useChosenKey);
+
+            fprInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    useChosenKey();
+                }
+            });
+
+            if (!fingerprint) {
+                showKeyPanel();
+            } else {
+                showSigningPage();
+            }
+
+            const commands = {
+                raw: challenge,
+
+                bash: `printf '%s\\n' '${challenge}' | gpg -a --local-user "${fingerprint}!" --clearsign`,
+                fsh: `echo '${challenge}' | gpg -a --local-user "${fingerprint}!" --clearsign`,
+                nushell: `echo '${challenge}' | gpg -a --local-user "${fingerprint}!" --clearsign`,
+            };
+
+            const tabs = document.querySelectorAll(".tm-code-tab");
+            const code = document.getElementById("tm-code-content");
+            const copyButton = document.getElementById("tm-copy");
+
+            let currentLanguage = "raw";
+
+            function updateCode(language) {
+                currentLanguage = language;
+                code.textContent = commands[language];
+
+                tabs.forEach((tab) => {
+                    const selected = tab.dataset.language === language;
+
+                    tab.setAttribute(
+                        "aria-selected",
+                        selected ? "true" : "false",
+                    );
+                });
+
+                copyButton.setAttribute(
+                    "aria-label",
+                    `Copy ${language} signing command`,
+                );
+                copyButton.title = `Copy ${language}`;
+            }
+
+            tabs.forEach((tab, index) => {
+                tab.addEventListener("click", () => {
+                    updateCode(tab.dataset.language);
+                });
+
+                tab.addEventListener("keydown", (event) => {
+                    let nextIndex = null;
+
+                    if (event.key === "ArrowRight") {
+                        nextIndex = (index + 1) % tabs.length;
+                    } else if (event.key === "ArrowLeft") {
+                        nextIndex = (index - 1 + tabs.length) % tabs.length;
+                    }
+
+                    if (nextIndex !== null) {
+                        event.preventDefault();
+                        tabs[nextIndex].focus();
+                        updateCode(tabs[nextIndex].dataset.language);
+                    }
+                });
+            });
+
+            copyButton.addEventListener("click", async () => {
+                const text = commands[currentLanguage];
+
+                try {
+                    await navigator.clipboard.writeText(text);
+
+                    copyButton.classList.add("tm-copied");
+                    copyButton.textContent = "✓";
+                    copyButton.title = "Copied";
+
+                    setTimeout(() => {
+                        copyButton.classList.remove("tm-copied");
+                        copyButton.textContent = "⧉";
+                        copyButton.title = `Copy ${currentLanguage}`;
+                    }, 1200);
+                } catch {
+                    const textarea = document.createElement("textarea");
+                    textarea.value = text;
+                    textarea.style.position = "fixed";
+                    textarea.style.opacity = "0";
+
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand("copy");
+                    textarea.remove();
+
+                    copyButton.classList.add("tm-copied");
+                    copyButton.textContent = "✓";
+
+                    setTimeout(() => {
+                        copyButton.classList.remove("tm-copied");
+                        copyButton.textContent = "⧉";
+                    }, 1200);
+                }
+            });
+
+            updateCode("raw");
+        </script>
+    </body>
+</html>

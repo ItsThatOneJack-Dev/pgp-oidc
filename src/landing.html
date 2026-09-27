@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ITOJ PGP OIDC</title>
+        <style data-demo>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+            }
+        </style>
+        <style data-snippet>
+            .tm {
+                --tm-green: #4ade80;
+                --tm-bright: #bbf7d0;
+                --tm-soft: #86efac;
+                --tm-dim: #3f9b57;
+                --tm-faint: #7a8d7a;
+                --tm-line: #4f7552;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+                background: #0a0e0a;
+                background-image: linear-gradient(
+                    rgba(74, 222, 128, 0.04) 1px,
+                    transparent 1px
+                );
+                background-size: 100% 3px;
+                color: var(--tm-green);
+                font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Consolas,
+                    "Liberation Mono", monospace;
+            }
+
+            .tm h1,
+            .tm p {
+                margin: 0;
+            }
+
+            .tm-win {
+                width: 100%;
+                max-width: 50%;
+                background: #0d130d;
+                border: 1px solid #1d2b1d;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+            .tm-bar {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                background: #111a11;
+                border-bottom: 1px solid #1d2b1d;
+                padding: 11px 14px;
+            }
+
+            .tm-dot {
+                width: 11px;
+                height: 11px;
+                border-radius: 50%;
+            }
+
+            .tm-r {
+                background: #f87171;
+            }
+
+            .tm-y {
+                background: #fbbf24;
+            }
+
+            .tm-g {
+                background: #34d399;
+            }
+
+            .tm-title {
+                margin-left: 8px;
+                font-size: 0.75rem;
+                color: var(--tm-faint);
+                letter-spacing: 0.04em;
+            }
+
+            .tm-body {
+                padding: 26px 26px 32px;
+            }
+
+            .tm-line {
+                font-size: 0.82rem;
+                color: var(--tm-dim);
+                margin-bottom: 22px !important;
+            }
+
+            .tm-label {
+                display: block;
+                font-size: 0.78rem;
+                color: var(--tm-dim);
+                margin-bottom: 6px;
+            }
+
+            .tm-label span {
+                color: var(--tm-soft);
+            }
+
+            .tm-input {
+                display: block;
+                width: 100%;
+                padding: 11px 13px;
+                margin-bottom: 18px;
+                background: #0a0f0a;
+                border: 1px solid var(--tm-line);
+                border-radius: 8px;
+                color: var(--tm-bright);
+                font: inherit;
+                font-size: 0.9rem;
+                caret-color: var(--tm-green);
+                transition:
+                    border-color 0.15s,
+                    box-shadow 0.15s;
+            }
+
+            .tm-input::placeholder {
+                color: #6c806d;
+            }
+
+            .tm-input:focus {
+                outline: none;
+                border-color: var(--tm-green);
+                box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+            }
+
+            .tm-btn {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid var(--tm-green);
+                border-radius: 8px;
+                background: transparent;
+                color: var(--tm-green);
+                font: inherit;
+                font-size: 0.9rem;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                cursor: pointer;
+                transition:
+                    background-color 0.15s,
+                    color 0.15s;
+            }
+
+            .tm-btn:hover {
+                background: var(--tm-green);
+                color: #0a0e0a;
+            }
+
+            .tm-advanced {
+                margin: -6px 0 18px;
+            }
+
+            .tm-advanced summary {
+                font-size: 0.78rem;
+                color: var(--tm-dim);
+                cursor: pointer;
+                margin-bottom: 10px;
+                user-select: none;
+            }
+
+            .tm-advanced summary:hover {
+                color: var(--tm-soft);
+            }
+
+            .tm-advanced summary::marker {
+                color: var(--tm-faint);
+            }
+
+            .tm-advanced[open] summary {
+                color: var(--tm-soft);
+            }
+
+            .tm-result {
+                margin-top: 4px;
+            }
+
+            .tm-link-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .tm-link-row .tm-input {
+                flex: 1;
+                margin-bottom: 0;
+            }
+
+            .tm-copy {
+                width: 42px;
+                height: 42px;
+                flex: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                border: 1px solid #315234;
+                border-radius: 8px;
+                background: #0d150d;
+                color: var(--tm-soft);
+                font: inherit;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition:
+                    background-color 0.15s,
+                    border-color 0.15s,
+                    color 0.15s;
+            }
+
+            .tm-copy:hover {
+                background: #152215;
+                border-color: var(--tm-green);
+                color: var(--tm-green);
+            }
+
+            .tm-copy.tm-copied {
+                border-color: var(--tm-green);
+                color: var(--tm-green);
+            }
+
+            .tm a:focus-visible,
+            .tm-btn:focus-visible,
+            .tm-copy:focus-visible {
+                outline: 2px solid var(--tm-green);
+                outline-offset: 3px;
+                border-radius: 3px;
+            }
+
+            @media (max-width: 800px) {
+                .tm-win {
+                    max-width: 100%;
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .tm-input,
+                .tm-btn,
+                .tm-copy {
+                    transition: none;
+                }
+            }
+
+            .tm-hint {
+                margin-top: 18px !important;
+                font-size: 0.75rem;
+                color: var(--tm-faint);
+            }
+
+            .tm-hint a {
+                color: var(--tm-soft);
+                text-decoration: none;
+                border-bottom: 1px dashed var(--tm-dim);
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="tm">
+            <div class="tm-win">
+                <div class="tm-bar" aria-hidden="true">
+                    <span class="tm-dot tm-r"></span>
+                    <span class="tm-dot tm-y"></span>
+                    <span class="tm-dot tm-g"></span>
+                    <span class="tm-title">PGP OIDC Login</span>
+                </div>
+
+                <div class="tm-body">
+                    <p class="tm-line">
+                        Enter your PGP key fingerprint to get your personal
+                        sign-in link — hand that link to anything that trusts
+                        this OIDC provider.
+                    </p>
+
+                    <label class="tm-label" for="tm-fpr">
+                        <span aria-hidden="true">$ </span>Key fingerprint
+                    </label>
+
+                    <input
+                        class="tm-input"
+                        type="text"
+                        id="tm-fpr"
+                        placeholder="0123456789ABCDEF0123456789ABCDEF01234567"
+                        autocomplete="off"
+                        autocapitalize="none"
+                        spellcheck="false"
+                    />
+
+                    <details class="tm-advanced">
+                        <summary>Advanced</summary>
+
+                        <label class="tm-label" for="tm-keyserver">
+                            <span aria-hidden="true">$ </span>Keyserver
+                            (optional)
+                        </label>
+
+                        <input
+                            class="tm-input"
+                            type="text"
+                            id="tm-keyserver"
+                            placeholder="keys.openpgp.org"
+                            autocomplete="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                        />
+                    </details>
+
+                    <button class="tm-btn" type="button" id="tm-generate">
+                        Get OIDC URL
+                    </button>
+
+                    <div class="tm-result" id="tm-result" hidden>
+                        <label class="tm-label" for="tm-link-output">
+                            <span aria-hidden="true">$ </span>Your OIDC URL
+                        </label>
+
+                        <div class="tm-link-row">
+                            <input
+                                class="tm-input"
+                                type="text"
+                                id="tm-link-output"
+                                readonly
+                            />
+                            <button
+                                class="tm-copy"
+                                type="button"
+                                id="tm-copy-link"
+                                aria-label="Copy sign-in link"
+                                title="Copy"
+                            >
+                                ⧉
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="tm-hint">
+                        <span aria-hidden="true"
+                            >// Want to add this service as a trusted OIDC
+                            provider? </span
+                        ><a href="/add">Click here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+
+            const fprInput = document.getElementById("tm-fpr");
+            const keyserverInput = document.getElementById("tm-keyserver");
+            const generateBtn = document.getElementById("tm-generate");
+            const result = document.getElementById("tm-result");
+            const linkOutput = document.getElementById("tm-link-output");
+            const copyButton = document.getElementById("tm-copy-link");
+
+            const prefillKeyserver = urlParams.get("keyserver");
+            if (prefillKeyserver) keyserverInput.value = prefillKeyserver;
+
+            function generateLink() {
+                const fpr = fprInput.value.trim().toUpperCase();
+
+                if (!/^[0-9A-F]{40}$/.test(fpr)) {
+                    fprInput.setCustomValidity(
+                        "Enter a full 40-character key fingerprint",
+                    );
+                    fprInput.reportValidity();
+                    return;
+                }
+                fprInput.setCustomValidity("");
+
+                const link = new URL(`/${fpr}`, window.location.origin);
+                const ks = keyserverInput.value.trim();
+                if (ks) link.searchParams.set("keyserver", ks);
+
+                linkOutput.value = link.toString();
+                result.hidden = false;
+                linkOutput.focus();
+                linkOutput.select();
+            }
+
+            generateBtn.addEventListener("click", generateLink);
+            fprInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    generateLink();
+                }
+            });
+
+            copyButton.addEventListener("click", async () => {
+                const text = linkOutput.value;
+
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch {
+                    linkOutput.select();
+                    document.execCommand("copy");
+                }
+
+                copyButton.classList.add("tm-copied");
+                copyButton.textContent = "✓";
+                copyButton.title = "Copied";
+
+                setTimeout(() => {
+                    copyButton.classList.remove("tm-copied");
+                    copyButton.textContent = "⧉";
+                    copyButton.title = "Copy";
+                }, 1200);
+            });
+        </script>
+    </body>
+</html>
