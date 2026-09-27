@@ -428,147 +428,120 @@
                         it using a PGP implementation of your choice.
                     </p>
 
-                    <div id="tm-challenge-block-family">
-                        <div class="tm-codebox" id="tm-challenge-block">
-                            <div
-                                class="tm-code-tabs"
-                                role="tablist"
-                                aria-label="Signing command"
+                    <div class="tm-codebox" id="tm-challenge-block">
+                        <div
+                            class="tm-code-tabs"
+                            role="tablist"
+                            aria-label="Signing command"
+                        >
+                            <button
+                                class="tm-code-tab"
+                                type="button"
+                                role="tab"
+                                aria-selected="true"
+                                aria-controls="tm-code"
+                                data-language="raw"
                             >
-                                <button
-                                    class="tm-code-tab"
-                                    type="button"
-                                    role="tab"
-                                    aria-selected="true"
-                                    aria-controls="tm-code"
-                                    data-language="raw"
-                                >
-                                    Raw
-                                </button>
+                                Raw
+                            </button>
 
-                                <button
-                                    class="tm-code-tab"
-                                    type="button"
-                                    role="tab"
-                                    aria-selected="false"
-                                    aria-controls="tm-code"
-                                    data-language="bash"
-                                >
-                                    Bash
-                                </button>
+                            <button
+                                class="tm-code-tab"
+                                type="button"
+                                role="tab"
+                                aria-selected="false"
+                                aria-controls="tm-code"
+                                data-language="bash"
+                            >
+                                Bash
+                            </button>
 
-                                <button
-                                    class="tm-code-tab"
-                                    type="button"
-                                    role="tab"
-                                    aria-selected="false"
-                                    aria-controls="tm-code"
-                                    data-language="fsh"
-                                >
-                                    Fsh
-                                </button>
+                            <button
+                                class="tm-code-tab"
+                                type="button"
+                                role="tab"
+                                aria-selected="false"
+                                aria-controls="tm-code"
+                                data-language="fsh"
+                            >
+                                Fsh
+                            </button>
 
-                                <button
-                                    class="tm-code-tab"
-                                    type="button"
-                                    role="tab"
-                                    aria-selected="false"
-                                    aria-controls="tm-code"
-                                    data-language="nushell"
-                                >
-                                    Nushell
-                                </button>
-                            </div>
-
-                            <div class="tm-code-wrap">
-                                <pre
-                                    class="tm-code"
-                                    id="tm-code"
-                                    role="tabpanel"
-                                    tabindex="0"
-                                ><code id="tm-code-content"></code></pre>
-
-                                <button
-                                    class="tm-copy"
-                                    type="button"
-                                    id="tm-copy"
-                                    aria-label="Copy signing command"
-                                    title="Copy"
-                                >
-                                    ⧉
-                                </button>
-                            </div>
+                            <button
+                                class="tm-code-tab"
+                                type="button"
+                                role="tab"
+                                aria-selected="false"
+                                aria-controls="tm-code"
+                                data-language="nushell"
+                            >
+                                Nushell
+                            </button>
                         </div>
 
-                        <form
-                            id="tm-signature-form"
-                            action="/verify"
-                            method="post"
-                        >
-                            <input
-                                type="hidden"
-                                name="challenge"
-                                id="tm-challenge-field"
-                            />
+                        <div class="tm-code-wrap">
+                            <pre
+                                class="tm-code"
+                                id="tm-code"
+                                role="tabpanel"
+                                tabindex="0"
+                            ><code id="tm-code-content"></code></pre>
 
-                            <label class="tm-label" for="tm-user">
-                                <span aria-hidden="true">$ </span>Signature
-                            </label>
-
-                            <textarea
-                                class="tm-input tm-textarea"
-                                id="tm-user"
-                                name="signature"
-                                placeholder="-----BEGIN PGP SIGNED MESSAGE-----"
-                                autocomplete="off"
-                                autocapitalize="none"
-                                spellcheck="false"
-                                rows="10"
-                                required
-                            ></textarea>
-
-                            <div id="tm-extra-fields"></div>
-
-                            <button class="tm-btn" type="submit">
-                                Continue
-                            </button>
-                        </form>
-
-                        <p class="tm-hint" id="tm-key-hint">
-                            <span aria-hidden="true">// </span>Using public key
-                            {FINGERPRINT}
-                            <br />
-                            <span aria-hidden="true">// </span>Wrong?
                             <button
-                                class="tm-linklike"
+                                class="tm-copy"
                                 type="button"
-                                id="tm-change-key"
+                                id="tm-copy"
+                                aria-label="Copy signing command"
+                                title="Copy"
                             >
-                                Change Key
+                                ⧉
                             </button>
-                        </p>
+                        </div>
                     </div>
 
+                    <form id="tm-signature-form" action="/verify" method="post">
+                        <input
+                            type="hidden"
+                            name="challenge"
+                            id="tm-challenge-field"
+                        />
+
+                        <label class="tm-label" for="tm-user">
+                            <span aria-hidden="true">$ </span>Signature
+                        </label>
+
+                        <textarea
+                            class="tm-input tm-textarea"
+                            id="tm-user"
+                            name="signature"
+                            placeholder="-----BEGIN PGP SIGNED MESSAGE-----"
+                            autocomplete="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                            rows="10"
+                            required
+                        ></textarea>
+
+                        <div id="tm-extra-fields"></div>
+
+                        <button class="tm-btn" type="submit">Continue</button>
+                    </form>
+
+                    <p class="tm-hint" id="tm-key-hint">
+                        <span aria-hidden="true">// </span>Using public key
+                        {FINGERPRINT}
+                        <br />
+                        <span aria-hidden="true">// </span>Wrong?
+                        <button
+                            class="tm-linklike"
+                            type="button"
+                            id="tm-change-key"
+                        >
+                            Change Key
+                        </button>
+                    </p>
+
                     <div class="tm-keypanel" id="tm-keypanel" hidden>
-                        <p class="tm-line">
-                            The service <b>{SERVICE}</b> is requesting that you
-                            sign in with OIDC using your PGP key.
-                        </p>
-
-                        <p class="tm-line" id="tm-challenge-intro">
-                            Please enter a PGP public key fingerprint,
-                            uppercase, without the "0x" prefix into the box
-                            below, this is the keypair you will prove your
-                            identity using.
-                            <br />
-                            If you wish to select a keyserver other than
-                            OpenPGP, you may do so using the advanced options.
-                            <br /><br />
-                            Once you have selected a key, you will be given a
-                            challenge token to clearsign, so please prepare your
-                            PGP implementation of choice.
-                        </p>
-
                         <label class="tm-label" for="tm-fpr">
                             <span aria-hidden="true">$ </span>Key fingerprint
                         </label>
@@ -652,9 +625,8 @@
 
             const challengeIntro =
                 document.getElementById("tm-challenge-intro");
-            const challengeBlock = document.getElementById(
-                "tm-challenge-block-family",
-            );
+            const challengeBlock =
+                document.getElementById("tm-challenge-block");
             const signatureForm = document.getElementById("tm-signature-form");
             const keyHint = document.getElementById("tm-key-hint");
             const keyLink = document.getElementById("tm-key-link");
@@ -682,8 +654,8 @@
             challengeField.value = challenge;
 
             function showKeyPanel() {
-                challengeIntro.textContent =
-                    "Please select a key to use for authentication.";
+                challengeIntro.innerHTML =
+                    'Please enter a PGP public key fingerprint, uppercase, without the "0x" prefix into the box below, this is the keypair you will prove your identity using.<br />If you wish to select a keyserver other than OpenPGP, you may do so using the advanced options.<br /><br />Once you have selected a key, you will be given a challenge token to clearsign, so please prepare your PGP implementation of choice.';
 
                 challengeBlock.hidden = true;
                 signatureForm.hidden = true;
@@ -696,7 +668,7 @@
             }
 
             function showSigningPage() {
-                challengeIntro.textContent =
+                challengeIntro.innerHTML =
                     "Below you will find a challenge token, please clearsign it using a PGP implementation of your choice.";
 
                 challengeBlock.hidden = false;
