@@ -276,9 +276,13 @@
 
                 <div class="tm-body">
                     <p class="tm-line">
-                        Enter your PGP key fingerprint to get your personal
-                        sign-in link — hand that link to anything that trusts
-                        this OIDC provider.
+                        Enter your PGP public key fingerprint below to generate
+                        a "hinted" OIDC URL, no data is stored server-side, the
+                        URL just encodes your fingerprint and keyserver.
+                        <br /><br />
+                        Please note that the service you use this service's OIDC
+                        on will need to trust this service, guidance for how to
+                        trust this service is available in the footer.
                     </p>
 
                     <label class="tm-label" for="tm-fpr">
