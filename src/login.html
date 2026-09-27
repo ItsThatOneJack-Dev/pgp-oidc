@@ -529,7 +529,7 @@
 
                     <p class="tm-hint" id="tm-key-hint">
                         <span aria-hidden="true">// </span>Using public key
-                        <div class="put-fingerprint-here">{FINGERPRINT}</div>
+                        <a id="tm-key-link" href="/faq">{FINGERPRINT}</a>
                         <br />
                         <span aria-hidden="true">// </span>Wrong?
                         <button
@@ -580,15 +580,10 @@
                         </button>
                     </div>
 
-                    <p class="tm-hint tm-footer">
+                    <p class="tm-hint tm-footer" id="tm-footer" hidden>
                         <span class="tm-footer-line">
                             <span aria-hidden="true">// </span
                             ><a href="/faq">Why do I need to provide these?</a>
-                        </span>
-                        <br />
-                        <span class="tm-footer-line" id="tm-footer-key">
-                            <span aria-hidden="true">// </span>Using public key
-                            <div class="put-fingerprint-here">{FINGERPRINT}</div>
                         </span>
                     </p>
                 </div>
@@ -601,11 +596,7 @@
             const challenge = "{CHALLENGE}";
             const fingerprint = urlParams.get("login_hint") || "{FINGERPRINT}";
             const keyserver = urlParams.get("keyserver") || "{KEYSERVER}";
-            const requestedFields = /*{REQUESTED_FIELDS_JSON}*/ undefined; // Populated automatically by `render.ts`, ignore.
-
-            document.getElementsByClassName("put-fingerprint-here").forEach(e => {
-                e.textContent = fingerprint.toUpperCase().replace("0X","");
-            });
+            const requestedFields = /*{REQUESTED_FIELDS_JSON}*/ undefined ?? []; // Populated automatically by `render.ts`, ignore.
 
             const extraFields = document.getElementById("tm-extra-fields");
             for (const field of requestedFields) {
@@ -639,16 +630,14 @@
             const useKeyBtn = document.getElementById("tm-use-key");
             const fprInput = document.getElementById("tm-fpr");
             const keyserverInput = document.getElementById("tm-keyserver");
-            const footerKeyLink = document.getElementById("tm-footer-key-link");
+            const footer = document.getElementById("tm-footer");
+
+            footer.hidden = requestedFields.length === 0;
 
             function renderFingerprint() {
                 if (!fingerprint) return;
 
                 keyLink.textContent = fingerprint;
-                keyLink.href = "/faq";
-
-                footerKeyLink.textContent = fingerprint;
-                footerKeyLink.href = "/faq";
             }
 
             renderFingerprint();
