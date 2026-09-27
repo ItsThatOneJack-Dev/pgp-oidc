@@ -529,7 +529,7 @@
 
                     <p class="tm-hint" id="tm-key-hint">
                         <span aria-hidden="true">// </span>Using public key
-                        {FINGERPRINT}
+                        <div class="put-fingerprint-here">{FINGERPRINT}</div>
                         <br />
                         <span aria-hidden="true">// </span>Wrong?
                         <button
@@ -588,7 +588,7 @@
                         <br />
                         <span class="tm-footer-line" id="tm-footer-key">
                             <span aria-hidden="true">// </span>Using public key
-                            {FINGERPRINT}
+                            <div class="put-fingerprint-here">{FINGERPRINT}</div>
                         </span>
                     </p>
                 </div>
@@ -602,6 +602,10 @@
             const fingerprint = urlParams.get("login_hint") || "{FINGERPRINT}";
             const keyserver = urlParams.get("keyserver") || "{KEYSERVER}";
             const requestedFields = /*{REQUESTED_FIELDS_JSON}*/ undefined; // Populated automatically by `render.ts`, ignore.
+
+            document.getElementsByClassName("put-fingerprint-here").forEach(e => {
+                e.textContent = fingerprint.toUpperCase().replace("0X","");
+            });
 
             const extraFields = document.getElementById("tm-extra-fields");
             for (const field of requestedFields) {
